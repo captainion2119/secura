@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Manrope', sans-serif;
+  background-color: #fff;
+  color: #171A1F;
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.sidebar {
+  width: 20%; 
+  border-right:  #e0e0e0; 
+  padding-right: 20px; 
+}
+
+.main-content {
+  width: 75%;
+  padding-left: 20px; 
+}
+
+h1 {
+  font-size: 24px;
+  margin-bottom: 20px; 
+}
+
+.field-group {
+  margin-bottom: 20px; 
+}
+
+label {
+  font-weight:normal; 
+}
+
+input[type="checkbox"] {
+  margin-right: 10px; 
+}
+
+button {
+  background-color: #0875e9; 
+  color: #fff; 
+  padding: 10px 15px; 
+  border: none; 
+  border-radius: 5px; 
+  cursor: pointer; 
+}
+
+button:hover {
+  background-color: #380081;
+}
