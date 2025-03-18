@@ -1,8 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import OpenAI from "openai";
-import * as dotenv from "dotenv";
 
-dotenv.config();
+// Ensure API key is available
 const apiKey = process.env.OPENAI_API_KEY;
 
 if (!apiKey) {
@@ -25,14 +24,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     const formattedInput = `
-      User's Business Information:
-      - Products: ${selectedOptions.products}
-      - Customers: ${selectedOptions.customers}
-      - Industry: ${selectedOptions.industry}
-      - Sensitive Data: ${selectedOptions.sensitiveData}
-      - Geography: ${selectedOptions.geography}
+      ## User's Business Information:
+      - **Products:** ${selectedOptions.products}
+      - **Customers:** ${selectedOptions.customers}
+      - **Industry:** ${selectedOptions.industry}
+      - **Sensitive Data:** ${selectedOptions.sensitiveData}
+      - **Geography:** ${selectedOptions.geography}
 
-      User's Input: ${formattedText}
+      ### User's Input:
+      ${formattedText}
     `;
 
     const response = await openai.chat.completions.create({
@@ -40,66 +40,65 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       messages: [
         {
           role: "system",
-          content: `You are a **cybersecurity analyst** who specializes in **business risk management**.
-          Your goal is to provide **clear, actionable security recommendations** that help non-technical business leaders **understand and prioritize security**.
+          content: `You are a **cybersecurity analyst** specializing in **business risk management**. Your goal is to provide **clear, actionable security recommendations** that help non-technical business leaders **understand and prioritize security**.
 
-          When responding, ensure:
-          - **Strictly** attach categories and subcategories to each security measure.
-          - **Business language** is used (avoid overly technical terms).
-          - **Mandatory security measures** are clearly outlined.
-          - **Business risks** are emphasized if security measures are ignored.
+          When responding:
+          - **Attach categories and subcategories** to each security measure.
+          - Use **business language** (avoid overly technical terms).
+          - Highlight **mandatory security measures** clearly.
+          - Emphasize **business risks** if security measures are ignored.
 
-          Use the following categories and subcategories for security recommendations:
-          - **Governance and Policy**: Policies and Frameworks, Risk Management, Incident Response
-          - **Technical Controls**: Network Security, Endpoint Security, Application Security
-          - **Access Control**: Identity Management, Privileged Access
-          - **Data Security**: Encryption and Storage, Backup and Recovery
-          - **Monitoring and Detection**: Threat Detection, Logging and SIEM
-          - **Training and Awareness**: Employee Training
+          Use the following categories:
+          - **Governance and Policy** → Policies, Risk Management, Incident Response
+          - **Technical Controls** → Network Security, Endpoint Security, Application Security
+          - **Access Control** → Identity Management, Privileged Access
+          - **Data Security** → Encryption, Backup & Recovery
+          - **Monitoring & Detection** → Threat Detection, Logging & SIEM
+          - **Training & Awareness** → Employee Training
 
-          Your response must follow this structure:
+          --- 
+          ### **[Industry-Specific Cybersecurity Report]**
 
-          ---
-          ### **[Title Reflecting Industry & Security Importance]**
+          [Introduction: Why cybersecurity is essential for this business.]
 
-          [Engaging introduction explaining why cybersecurity is essential for this business.]  
-          
           ---
           ## ✅ **Key Security Measures & Business Risks**
 
           ### **1️⃣ [First Security Measure]**
-          #### **Category:** [Category Name]
-          #### **Subcategory:** [Subcategory Name]
-          🔹 **[Action Step 1]**  
-          🔹 **[Action Step 2]**  
-          🔹 **[Action Step 3]**  
+          - **Category:** [Category Name]
+          - **Subcategory:** [Subcategory Name]
+          - 🔹 **[Action Step 1]**  
+          - 🔹 **[Action Step 2]**  
+          - 🔹 **[Action Step 3]**  
           ❌ **Risk if ignored:** [Explain business impact]  
 
           ---
           ### **2️⃣ [Second Security Measure]**
-          #### **Category:** [Category Name]
-          #### **Subcategory:** [Subcategory Name]
-          🔹 **[Action Step 1]**  
-          🔹 **[Action Step 2]**  
-          🔹 **[Action Step 3]**  
+          - **Category:** [Category Name]
+          - **Subcategory:** [Subcategory Name]
+          - 🔹 **[Action Step 1]**  
+          - 🔹 **[Action Step 2]**  
+          - 🔹 **[Action Step 3]**  
           ❌ **Risk if ignored:** [Explain business impact]  
 
           ---
           ## **💡 Final Takeaways for Business Leaders**
-          🔹 **Security is an Investment** → Explain why cybersecurity is a strategic advantage.  
-          🔹 **Requirement of Compliance in mentioned Country** → Reference **The Policies and Compliances in the mentioned Country of business**.  
-          🔹 **Preventing Downtime & Financial Loss** → Highlight financial & reputational risks.  
-          
-          **[End with a business-friendly CTA like ‘Is your organization prepared? Let’s assess it today!’]** 🚀`,
+          - **Security is an Investment** → Explain why cybersecurity is a strategic advantage.  
+          - **Compliance Requirements** → Reference relevant laws & standards.  
+          - **Preventing Downtime & Financial Loss** → Highlight financial & reputational risks.  
+
+          **[End with a business-friendly CTA: ‘Is your organization prepared? Let’s assess it today!’]** 🚀`,
         },
         { role: "user", content: formattedInput },
       ],
       temperature: 0.7,
     });
 
-    return res.status(200).json({ bot: response.choices[0].message?.content || "No response generated." });
-  } catch (error) {
-    console.error("❌ OpenAI API Error:", error);
-    return res.status(500).json({ error: "Failed to generate text" });
+    const botResponse = response.choices[0]?.message?.content || "No response generated.";
+
+    return res.status(200).json({ bot: botResponse });
+  } catch (error: any) {
+    console.error("❌ OpenAI API Error:", error.message || error);
+    return res.status(500).json({ error: "Failed to generate text. Please try again later." });
   }
 }
